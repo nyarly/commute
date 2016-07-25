@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"os/user"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/samsalisbury/yaml"
 )
 
 const (
-	configDir  = "~/.config/commute"
-	configFile = "~/.config/commute/config.yaml"
-	docs       = `commute: transit git projects back and forth
+	relConfigDir  = ".config/commute"
+	relConfigFile = "config.yaml"
+	docs          = `commute: transit git projects back and forth
 Usage:
   commute list   Ensure that the config maps to projects
 	commute add    Add the current git project
@@ -28,14 +31,28 @@ type (
 	remote string
 )
 
-var remoteNameRE = regexp.MustCompile(`[^/]+/[^/]+\.git$`)
+var (
+	configDir    string
+	configFile   string
+	cfg          config
+	remoteNameRE = regexp.MustCompile(`([^/:]+/[^/]+)\.git$`)
+	fieldsRE     = regexp.MustCompile(`\s+`)
+)
 
 func (r *remote) name() string {
-	return remoteNameRE.FindString(string(*r))
+	m := remoteNameRE.FindStringSubmatch(string(*r))
+	if m == nil || len(m) < 2 {
+		panic("Badly formatted git remote: " + string(*r))
+	}
+	return m[1]
 }
 
 func (r *remote) linkPath() string {
 	return filepath.Join(configDir, r.name())
+}
+
+func (r *remote) localPath() (string, error) {
+	return os.Readlink(r.linkPath())
 }
 
 func main() {
@@ -44,7 +61,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	var err error
+	err := setupPaths()
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+
+	err = loadConfig()
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
 	switch os.Args[1] {
 	default:
 		fmt.Println(docs)
@@ -56,13 +83,23 @@ func main() {
 	}
 
 	if err != nil {
-		fmt.Print(err)
+		fmt.Fprintln(os.Stderr, err)
 	}
 
 }
 
-func doList() error {
-	var cfg config
+func setupPaths() error {
+	u, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	configDir = filepath.Join(u.HomeDir, relConfigDir)
+	configFile = filepath.Join(configDir, relConfigFile)
+	return nil
+}
+
+func loadConfig() error {
 	f, err := os.Open(configFile)
 	if err != nil {
 		return err
@@ -77,13 +114,84 @@ func doList() error {
 		return err
 	}
 
+	return nil
+}
+
+func doList() error {
 	for _, remote := range cfg.Remotes {
-		st, err := os.Stat(remote.linkPath())
-		fmt.Printf("%# v %T %v %T", st, st, err, err)
+		_, err := os.Stat(remote.linkPath())
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s -> MISSING\n", remote)
+			continue
+		}
+		p, err := remote.localPath()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s : %s\n", remote, err)
+		}
+		fmt.Printf("%s\n", p)
 	}
 	return nil
 }
 
+func lookup(start, tgt string) (string, error) {
+	for from, _ := filepath.Abs(start); !(from == "" || from == "/"); from = filepath.Dir(from) {
+		cb := filepath.Join(from, tgt)
+		_, err := os.Lstat(cb)
+		if err == nil {
+			return from, nil
+		}
+	}
+	return "", fmt.Errorf("No %s found above %s", tgt, start)
+}
+
 func doAdd() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	root, err := lookup(wd, `.git`)
+	if err != nil {
+		return err
+	}
+
+	git := exec.Command(`git`, `remote`, `-v`)
+	git.Dir = root
+
+	out, err := git.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	var r, name string
+Rems:
+	for _, line := range strings.Split(string(out), "\n") {
+		fields := fieldsRE.Split(line, 3)
+		if len(fields) < 2 {
+			continue
+		}
+		for _, rem := range cfg.Remotes {
+			if fields[1] == string(rem) {
+				r = string(rem)
+				break Rems
+			}
+		}
+		if (fields[0] == `upstream` && name == ``) ||
+			(fields[0] == `origin` && (name == `` || name == `upstream`)) ||
+			(r == ``) {
+			name, r = fields[0], fields[1]
+		}
+	}
+
+	rem := remote(r)
+
+	_, err = os.Stat(rem.linkPath())
+	if err == nil {
+		p, _ := rem.localPath()
+		return fmt.Errorf("Remote already accounted for as %s", p)
+	}
+	os.Mkdir(filepath.Dir(rem.linkPath()), os.ModeDir|os.ModePerm)
+	os.Symlink(root, rem.linkPath())
+
 	return nil
 }
