@@ -35,7 +35,7 @@ var (
 	configDir    string
 	configFile   string
 	cfg          config
-	remoteNameRE = regexp.MustCompile(`([^/:]+/[^/]+)\.git$`)
+	remoteNameRE = regexp.MustCompile(`([^/:]+/[^/]+)(?:\.git)?$`)
 	fieldsRE     = regexp.MustCompile(`\s+`)
 )
 
