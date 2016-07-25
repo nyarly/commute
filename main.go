@@ -144,6 +144,20 @@ func lookup(start, tgt string) (string, error) {
 	return "", fmt.Errorf("No %s found above %s", tgt, start)
 }
 
+func (c *config) save() error {
+	b, err := yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+	f, err := os.Create(configFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	f.Write(b)
+	return nil
+}
+
 func doAdd() error {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -164,6 +178,7 @@ func doAdd() error {
 	}
 
 	var r, name string
+	found := false
 Rems:
 	for _, line := range strings.Split(string(out), "\n") {
 		fields := fieldsRE.Split(line, 3)
@@ -173,6 +188,7 @@ Rems:
 		for _, rem := range cfg.Remotes {
 			if fields[1] == string(rem) {
 				r = string(rem)
+				found = true
 				break Rems
 			}
 		}
@@ -184,6 +200,12 @@ Rems:
 	}
 
 	rem := remote(r)
+	if !found {
+		cfg.Remotes = append(cfg.Remotes, rem)
+		if e := cfg.save(); e != nil {
+			return e
+		}
+	}
 
 	_, err = os.Stat(rem.linkPath())
 	if err == nil {
