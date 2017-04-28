@@ -186,7 +186,9 @@ Rems:
 			continue
 		}
 		for _, rem := range cfg.Remotes {
-			if fields[1] == string(rem) {
+			if fields[1] == string(rem) ||
+				fields[1]+".git" == string(rem) ||
+				fields[1] == string(rem)+".git" {
 				r = string(rem)
 				found = true
 				break Rems
