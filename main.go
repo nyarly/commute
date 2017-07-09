@@ -194,9 +194,9 @@ Rems:
 				break Rems
 			}
 		}
-		if (fields[0] == `upstream` && name == ``) ||
-			(fields[0] == `origin` && (name == `` || name == `upstream`)) ||
-			(r == ``) {
+		if fields[0] == `origin` ||
+			(fields[0] == `upstream` && name != `origin`) ||
+			r == `` {
 			name, r = fields[0], fields[1]
 		}
 	}
