@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"os/user"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/samsalisbury/yaml"
 )
@@ -18,8 +16,10 @@ const (
 	relConfigFile = "config.yaml"
 	docs          = `commute: transit git projects back and forth
 Usage:
-  commute list   Ensure that the config maps to projects
-	commute add    Add the current git project
+  commute list         Ensure that the config maps to projects
+	commute add          Add the current git project
+	commute rm [remote]  Remove the current project (or named remote)
+	                       from the commute config.
 `
 )
 
@@ -80,6 +80,8 @@ func main() {
 		err = doList()
 	case `add`:
 		err = doAdd()
+	case `rm`:
+		err = doRemove(os.Args[2:])
 	}
 
 	if err != nil {
@@ -117,22 +119,6 @@ func loadConfig() error {
 	return nil
 }
 
-func doList() error {
-	for _, remote := range cfg.Remotes {
-		_, err := os.Stat(remote.linkPath())
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s -> MISSING\n", remote)
-			continue
-		}
-		p, err := remote.localPath()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s : %s\n", remote, err)
-		}
-		fmt.Printf("%s\n", p)
-	}
-	return nil
-}
-
 func lookup(start, tgt string) (string, error) {
 	for from, _ := filepath.Abs(start); !(from == "" || from == "/"); from = filepath.Dir(from) {
 		cb := filepath.Join(from, tgt)
@@ -155,67 +141,5 @@ func (c *config) save() error {
 	}
 	defer f.Close()
 	f.Write(b)
-	return nil
-}
-
-func doAdd() error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	root, err := lookup(wd, `.git`)
-	if err != nil {
-		return err
-	}
-
-	git := exec.Command(`git`, `remote`, `-v`)
-	git.Dir = root
-
-	out, err := git.CombinedOutput()
-	if err != nil {
-		return err
-	}
-
-	var r, name string
-	found := false
-Rems:
-	for _, line := range strings.Split(string(out), "\n") {
-		fields := fieldsRE.Split(line, 3)
-		if len(fields) < 2 {
-			continue
-		}
-		for _, rem := range cfg.Remotes {
-			if fields[1] == string(rem) ||
-				fields[1]+".git" == string(rem) ||
-				fields[1] == string(rem)+".git" {
-				r = string(rem)
-				found = true
-				break Rems
-			}
-		}
-		if fields[0] == `origin` ||
-			(fields[0] == `upstream` && name != `origin`) ||
-			r == `` {
-			name, r = fields[0], fields[1]
-		}
-	}
-
-	rem := remote(r)
-	if !found {
-		cfg.Remotes = append(cfg.Remotes, rem)
-		if e := cfg.save(); e != nil {
-			return e
-		}
-	}
-
-	_, err = os.Stat(rem.linkPath())
-	if err == nil {
-		p, _ := rem.localPath()
-		return fmt.Errorf("Remote already accounted for as %s", p)
-	}
-	os.Mkdir(filepath.Dir(rem.linkPath()), os.ModeDir|os.ModePerm)
-	os.Symlink(root, rem.linkPath())
-
 	return nil
 }
