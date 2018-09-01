@@ -31,8 +31,6 @@ func doAdd() error {
 		p, _ := rem.localPath()
 		return fmt.Errorf("remote already accounted for as %s", p)
 	}
-	if err := os.Mkdir(filepath.Dir(rem.linkPath()), os.ModeDir|os.ModePerm); err != nil {
-		return err
-	}
+	os.Mkdir(filepath.Dir(rem.linkPath()), os.ModeDir|os.ModePerm)
 	return os.Symlink(root, rem.linkPath())
 }
