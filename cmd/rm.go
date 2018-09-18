@@ -1,11 +1,23 @@
-package main
+package cmd
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
-func doRemove(args []string) error {
+func init() {
+	rootCmd.AddCommand(rmCmd)
+}
+
+var rmCmd = &cobra.Command{
+	Use:   "rm",
+	Short: "remote repos from tracking",
+	RunE:  rmFn,
+}
+
+func rmFn(cmd *cobra.Command, args []string) error {
 	var remotes []gitRemote
 	var found bool
 	if len(args) == 0 {
