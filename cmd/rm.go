@@ -12,8 +12,9 @@ func init() {
 }
 
 var rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "remote repos from tracking",
+	Use:   "rm [remote]",
+	Short: "remote repo from tracking",
+	Long:  longUsage(`Remove either the current project (or the provided remote) from commmute tracking.`),
 	RunE:  rmFn,
 }
 
