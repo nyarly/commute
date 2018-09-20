@@ -15,6 +15,7 @@ var rmCmd = &cobra.Command{
 	Use:   "rm [remote]",
 	Short: "remote repo from tracking",
 	Long:  longUsage(`Remove either the current project (or the provided remote) from commmute tracking.`),
+	Args:  cobra.RangeArgs(0, 1),
 	RunE:  rmFn,
 }
 

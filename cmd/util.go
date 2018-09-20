@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
-	"os/user"
 	"path/filepath"
 	"regexp"
 
@@ -25,10 +23,8 @@ Usage:
 
 type (
 	config struct {
-		Remotes []remote
+		Remotes remotes
 	}
-
-	remote string
 )
 
 var (
@@ -38,51 +34,6 @@ var (
 	remoteNameRE = regexp.MustCompile(`([^/:]+/[^/.]+)(?:\.git)?$`)
 	fieldsRE     = regexp.MustCompile(`\s+`)
 )
-
-func (r *remote) name() string {
-	m := remoteNameRE.FindStringSubmatch(string(*r))
-	if m == nil || len(m) < 2 {
-		panic("Badly formatted git remote: " + string(*r))
-	}
-	return m[1]
-}
-
-func (r *remote) linkPath() string {
-	return filepath.Join(configDir, r.name())
-}
-
-func (r *remote) localPath() (string, error) {
-	return os.Readlink(r.linkPath())
-}
-
-func setupPaths() error {
-	u, err := user.Current()
-	if err != nil {
-		return err
-	}
-
-	configDir = filepath.Join(u.HomeDir, relConfigDir)
-	configFile = filepath.Join(configDir, relConfigFile)
-	return nil
-}
-
-func loadConfig() error {
-	f, err := os.Open(configFile)
-	if err != nil {
-		return err
-	}
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		return err
-	}
-
-	err = yaml.Unmarshal(b, &cfg)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func lookup(start, tgt string) (string, error) {
 	for from, _ := filepath.Abs(start); !(from == "" || from == "/"); from = filepath.Dir(from) {

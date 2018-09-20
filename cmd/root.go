@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/user"
+	"path/filepath"
 
+	"github.com/samsalisbury/yaml"
 	"github.com/spf13/cobra"
 )
 
@@ -30,4 +34,33 @@ func setupStuff(cmd *cobra.Command, args []string) error {
 	}
 
 	return loadConfig()
+}
+
+func setupPaths() error {
+	u, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	configDir = filepath.Join(u.HomeDir, relConfigDir)
+	configFile = filepath.Join(configDir, relConfigFile)
+	return nil
+}
+
+func loadConfig() error {
+	f, err := os.Open(configFile)
+	if err != nil {
+		return err
+	}
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		return err
+	}
+
+	err = yaml.Unmarshal(b, &cfg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -2,62 +2,37 @@ package cmd
 
 import (
 	"os"
-	"os/exec"
-	"strings"
+	"path/filepath"
 )
 
-type gitRemote struct {
-	name, url string
-}
+type (
+	remote string
 
-func getRepoRoot() (string, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
+	remotes []remote
+)
+
+func (r *remote) name() string {
+	m := remoteNameRE.FindStringSubmatch(string(*r))
+	if m == nil || len(m) < 2 {
+		panic("Badly formatted git remote: " + string(*r))
 	}
-
-	return lookup(wd, `.git`)
+	return m[1]
 }
 
-func chooseRemote(cfg config, remotes []gitRemote) (remote, bool) {
-	var best gitRemote
+func (r *remote) linkPath() string {
+	return filepath.Join(configDir, r.name())
+}
 
-	for _, rr := range remotes {
-		for _, rem := range cfg.Remotes {
-			if sameRemote(remote(rr.url), rem) {
-				return remote(rr.url), true
-			}
+func (r *remote) localPath() (string, error) {
+	return os.Readlink(r.linkPath())
+}
+
+func (rs remotes) findByLinkPath(p string) remote {
+	for _, r := range rs {
+		if r.linkPath() == p {
+			return r
 		}
-		if rr.url == `origin` ||
-			(rr.url == `upstream` && best.name != `origin`) ||
-			best.url == `` {
-			best = rr
-		}
 	}
 
-	return remote(best.url), false
-}
-
-func sameRemote(l, r remote) bool {
-	return l == r || l+".git" == r || l == r+".git"
-}
-
-func getRemotes(root string) ([]gitRemote, error) {
-	git := exec.Command(`git`, `remote`, `-v`)
-	git.Dir = root
-
-	rems := []gitRemote{}
-	out, err := git.CombinedOutput()
-	if err != nil {
-		return rems, err
-	}
-
-	for _, line := range strings.Split(string(out), "\n") {
-		fields := fieldsRE.Split(line, 3)
-		if len(fields) < 2 || fields[2] != `(fetch)` {
-			continue
-		}
-		rems = append(rems, gitRemote{name: fields[0], url: fields[1]})
-	}
-	return rems, nil
+	return remote("")
 }
