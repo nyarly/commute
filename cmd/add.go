@@ -41,11 +41,16 @@ func addFn(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	_, err = os.Stat(rem.linkPath())
+	lp, err := rem.linkPath()
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stat(lp)
 	if err == nil {
 		p, _ := rem.localPath()
 		return fmt.Errorf("remote already accounted for as %s", p)
 	}
-	os.Mkdir(filepath.Dir(rem.linkPath()), os.ModeDir|os.ModePerm)
-	return os.Symlink(root, rem.linkPath())
+	os.Mkdir(filepath.Dir(lp), os.ModeDir|os.ModePerm)
+	return os.Symlink(root, lp)
 }

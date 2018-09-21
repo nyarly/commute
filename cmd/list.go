@@ -21,7 +21,12 @@ var listCmd = &cobra.Command{
 
 func listFn(cmd *cobra.Command, args []string) error {
 	for _, remote := range cfg.Remotes {
-		_, err := os.Stat(remote.linkPath())
+		lp, err := remote.linkPath()
+		if err != nil {
+			return err
+		}
+
+		_, err = os.Stat(lp)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s -> MISSING\n", remote)
 			continue

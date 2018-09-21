@@ -53,8 +53,13 @@ func rmFn(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if _, err := os.Stat(rem.linkPath()); err != nil {
+	lp, err := rem.linkPath()
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(lp); err != nil {
 		fmt.Printf("remote not yet accounted for")
 	}
-	return os.Remove(rem.linkPath())
+	return os.Remove(lp)
 }

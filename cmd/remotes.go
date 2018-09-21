@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -11,25 +12,35 @@ type (
 	remotes []remote
 )
 
-func (r *remote) name() string {
+func (r *remote) name() (string, error) {
 	m := remoteNameRE.FindStringSubmatch(string(*r))
 	if m == nil || len(m) < 2 {
-		panic("Badly formatted git remote: " + string(*r))
+		return "", fmt.Errorf("badly formatted git remote: %s", *r)
 	}
-	return m[1]
+	return m[1], nil
 }
 
-func (r *remote) linkPath() string {
-	return filepath.Join(configDir, r.name())
+func (r *remote) linkPath() (string, error) {
+	name, err := r.name()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(configDir, name), nil
 }
 
 func (r *remote) localPath() (string, error) {
-	return os.Readlink(r.linkPath())
+	path, err := r.linkPath()
+	if err != nil {
+		return "", err
+	}
+
+	return os.Readlink(path)
 }
 
 func (rs remotes) findByLinkPath(p string) remote {
 	for _, r := range rs {
-		if r.linkPath() == p {
+		if l, err := r.linkPath(); err == nil && l == p {
 			return r
 		}
 	}

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -14,7 +13,6 @@ import (
 // Execute runs the command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
 }
@@ -25,6 +23,7 @@ var rootCmd = &cobra.Command{
 	Long: longUsage(`A utility for keeping track of where repos are on you work machine,
 		suitable for use by humans and scripts.`),
 	PersistentPreRunE: setupStuff,
+	SilenceUsage:      true,
 }
 
 func setupStuff(cmd *cobra.Command, args []string) error {
