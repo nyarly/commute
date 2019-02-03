@@ -49,10 +49,6 @@ func rmFn(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if err := cfg.save(); err != nil {
-		return err
-	}
-
 	lp, err := rem.linkPath()
 	if err != nil {
 		return err

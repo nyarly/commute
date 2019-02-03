@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
 
-	"github.com/samsalisbury/yaml"
 	"github.com/spf13/cobra"
 )
 
@@ -22,8 +20,9 @@ var rootCmd = &cobra.Command{
 	Short: "commute maintains the mapping of remote repositories to local workspaces",
 	Long: longUsage(`A utility for keeping track of where repos are on you work machine,
 		suitable for use by humans and scripts.`),
-	PersistentPreRunE: setupStuff,
-	SilenceUsage:      true,
+	PersistentPreRunE:  setupStuff,
+	PersistentPostRunE: saveConfig,
+	SilenceUsage:       true,
 }
 
 func setupStuff(cmd *cobra.Command, args []string) error {
@@ -46,20 +45,6 @@ func setupPaths() error {
 	return nil
 }
 
-func loadConfig() error {
-	f, err := os.Open(configFile)
-	if err != nil {
-		return err
-	}
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		return err
-	}
-
-	err = yaml.Unmarshal(b, &cfg)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func saveConfig(cmd *cobra.Command, args []string) error {
+	return cfgEnvelope.save()
 }

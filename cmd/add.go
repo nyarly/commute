@@ -36,9 +36,6 @@ func addFn(cmd *cobra.Command, args []string) error {
 
 	if !found {
 		cfg.Remotes = append(cfg.Remotes, rem)
-		if e := cfg.save(); e != nil {
-			return e
-		}
 	}
 
 	lp, err := rem.linkPath()

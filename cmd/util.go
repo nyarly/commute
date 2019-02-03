@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-
-	"github.com/samsalisbury/yaml"
 )
 
 const (
@@ -21,16 +19,7 @@ Usage:
 `
 )
 
-type (
-	config struct {
-		Remotes remotes
-	}
-)
-
 var (
-	configDir    string
-	configFile   string
-	cfg          config
 	remoteNameRE = regexp.MustCompile(`([^/:]+/[^/.]+)(?:\.git)?$`)
 	fieldsRE     = regexp.MustCompile(`\s+`)
 )
@@ -44,20 +33,6 @@ func lookup(start, tgt string) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("No %s found above %s", tgt, start)
-}
-
-func (c *config) save() error {
-	b, err := yaml.Marshal(c)
-	if err != nil {
-		return err
-	}
-	f, err := os.Create(configFile)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	f.Write(b)
-	return nil
 }
 
 var longFix = regexp.MustCompile(`(?m)^[ \t]*`)
