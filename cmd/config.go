@@ -88,7 +88,7 @@ func (env *envelope) fetchConfigGist() {
 		return
 	}
 	ctx := context.Background()
-	gist, _res, err := client.Gists.Get(ctx, env.GistID)
+	gist, _, err := client.Gists.Get(ctx, env.GistID)
 	if err != nil {
 		fmt.Printf("Using local cache becasue there was an error fetching gist: %v", err)
 		return
@@ -126,8 +126,13 @@ func (env *envelope) save() error {
 		},
 	}
 	client := getClient(env.OauthToken)
+	if client == nil {
+		fmt.Printf("Oauth token not set, working with local config.")
+		return nil
+	}
 	ctx := context.Background()
 	if env.GistID == "" {
+		gist.Public = github.Bool(false)
 		gist, _, err = client.Gists.Create(ctx, gist)
 	} else {
 		gist, _, err = client.Gists.Edit(ctx, env.GistID, gist)
