@@ -8,6 +8,7 @@ import (
 )
 
 func init() {
+  listCmd.Flags().BoolP("include-remotes", "r", false, "list remotes as well as directories")
 	rootCmd.AddCommand(listCmd)
 }
 
@@ -35,7 +36,11 @@ func listFn(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s : %s\n", remote, err)
 		}
-		fmt.Printf("%s\n", p)
+    if include, err := cmd.Flags().GetBool("include-remotes"); err == nil && include {
+      fmt.Printf("%s -> %s\n", remote, p)
+    } else {
+      fmt.Printf("%s\n", p)
+    }
 	}
 	return nil
 }

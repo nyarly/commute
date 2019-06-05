@@ -23,17 +23,22 @@ func chooseRemote(cfg *config, remotes []gitRemote) (remote, bool) {
 	var best gitRemote
 
 	for _, rr := range remotes {
+    verbose("Considering remote: %s %s", rr.name, rr.url)
 		for _, rem := range cfg.Remotes {
 			if sameRemote(remote(rr.url), rem) {
+        verbose("Remote exists in cfg: %q. Using that.", rem)
 				return remote(rr.url), true
 			}
 		}
-		if rr.url == `origin` ||
-			(rr.url == `upstream` && best.name != `origin`) ||
+		if rr.name == `origin` ||
+			(rr.name == `upstream` && best.name != `origin`) ||
 			best.url == `` {
-			best = rr
+        verbose("We like %s better than %s", rr.url, best.url)
+        best = rr
 		}
 	}
+
+  verbose("Chose %s", best.url)
 
 	return remote(best.url), false
 }

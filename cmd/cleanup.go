@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -16,46 +15,12 @@ var (
 		Long: longUsage(`Over time, repository records get stale. For instance, if a workspace is deleted or moved,
 		commute's idea of where it is will become wrong. This command checks that those records are current,
 		and removes entries that are wrong.`),
-		PreRunE: preCleanup,
 		RunE:    cleanupFn,
 	}
-
-	quietFlag bool
-	verbFlag  bool
-	dryFlag   bool
-
-	normal   = func(fmt string, as ...interface{}) {}
-	verbose  = func(fmt string, as ...interface{}) {}
-	actually = func(f func() error) error { return f() }
 )
 
 func init() {
 	rootCmd.AddCommand(cleanupCmd)
-	cleanupCmd.Flags().BoolVarP(&quietFlag, "quiet", "q", false, "quiet output")
-	cleanupCmd.Flags().BoolVarP(&verbFlag, "verbose", "v", false, "verbose output")
-	cleanupCmd.Flags().BoolVarP(&dryFlag, "dryrun", "d", false, "take no action")
-}
-
-func preCleanup(cmd *cobra.Command, args []string) error {
-	if verbFlag && quietFlag {
-		return fmt.Errorf("can't specify both quiet and verbose")
-	}
-
-	if !quietFlag {
-		normal = func(tmpl string, as ...interface{}) {
-			fmt.Printf(tmpl, as...)
-		}
-	}
-	if verbFlag {
-		verbose = func(tmpl string, as ...interface{}) {
-			fmt.Printf(tmpl, as...)
-		}
-	}
-
-	if dryFlag {
-		actually = func(func() error) error { return nil }
-	}
-	return nil
 }
 
 func cleanupFn(cmd *cobra.Command, args []string) error {
