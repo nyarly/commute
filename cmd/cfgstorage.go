@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"sync"
@@ -107,31 +106,31 @@ func (env *envelope) fetchConfigGist() {
 	}
 	client := getClient(env.OauthToken)
 	if client == nil {
-		fmt.Printf("Oauth token not set, working with local config.")
+		normal("Oauth token not set, working with local config.")
 		return
 	}
 	ctx := context.Background()
 	gist, _, err := client.Gists.Get(ctx, env.GistID)
 	if err != nil {
-		fmt.Printf("Using local cache becasue there was an error fetching gist: %v", err)
+		normal("Using local cache becasue there was an error fetching gist: %v", err)
 		return
 	}
 
 	configYaml, present := gist.Files[configYamlFilename]
 	if !present {
-		fmt.Printf("There is a gist for %q but it doesn't have a file named %q.", env.GistID, configYamlFilename)
+		normal("There is a gist for %q but it doesn't have a file named %q.", env.GistID, configYamlFilename)
 		return
 	}
 
 	err = yaml.Unmarshal([]byte(configYaml.GetContent()), &env.Config)
 	if err != nil {
-		fmt.Printf("There was a problem parsing the YAML in Gist %q, file %q.", env.GistID, configYamlFilename)
+		normal("There was a problem parsing the YAML in Gist %q, file %q.", env.GistID, configYamlFilename)
 		return
 	}
 
 	err = env.write()
 	if err != nil {
-		fmt.Printf("Trouble saving the config file: %q", err)
+		normal("Trouble saving the config file: %q", err)
 	}
 }
 
@@ -150,7 +149,7 @@ func (env *envelope) save() error {
 	}
 	client := getClient(env.OauthToken)
 	if client == nil {
-		fmt.Printf("Oauth token not set, working with local config.")
+		normal("Oauth token not set, working with local config.")
 		return nil
 	}
 	ctx := context.Background()

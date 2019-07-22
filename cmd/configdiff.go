@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -9,7 +8,7 @@ import (
 
 func init() {
 	configCmd.AddCommand(cDiffCmd)
-  queryCommand(cDiffCmd)
+	queryCommand(cDiffCmd)
 }
 
 var cDiffCmd = &cobra.Command{
@@ -34,12 +33,12 @@ func cdiffFn(cmd *cobra.Command, args []string) error {
 		}
 
 		if !valuesEqual(gv, tv) {
-			fmt.Printf("%s:\n  Workspace: %s\n  Tracked:%s\n", name, strings.Join(gv, ", "), strings.Join(tv, ", "))
+			normal("%s:\n  Workspace: %s\n  Tracked:%s\n", name, strings.Join(gv, ", "), strings.Join(tv, ", "))
 		} else {
-      verbose("%s: same\n")
-    }
+			verbose("%s: same\n")
+		}
 	}
 
-  verbose("%d entries", len(tracked))
+	verbose("%d entries", len(tracked))
 	return nil
 }

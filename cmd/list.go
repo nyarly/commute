@@ -38,9 +38,9 @@ func listFn(cmd *cobra.Command, args []string) error {
 			fmt.Fprintf(os.Stderr, "%s : %s\n", remote, err)
 		}
     if include, err := cmd.Flags().GetBool("include-remotes"); err == nil && include {
-      fmt.Printf("%s -> %s\n", remote, p)
+      normal("%s -> %s\n", remote, p)
     } else {
-      fmt.Printf("%s\n", p)
+      normal("%s\n", p)
     }
 	}
 	return nil

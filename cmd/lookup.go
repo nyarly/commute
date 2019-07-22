@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +15,7 @@ var lookupCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(lookupCmd)
-  configOblivious(lookupCmd)
+	configOblivious(lookupCmd)
 }
 
 func lookupFn(cmd *cobra.Command, args []string) error {
@@ -27,6 +25,6 @@ func lookupFn(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(path)
+	normal(path)
 	return nil
 }
