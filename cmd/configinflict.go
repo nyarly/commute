@@ -18,5 +18,17 @@ var cInflictCmd = &cobra.Command{
 
 
 func cInflictFn(cmd *cobra.Command, args []string) error {
+	tracked, err := repoConfigs()
+	if err != nil {
+		return err
+	}
+
+	for name, tv := range tracked {
+    err := setValues(name, tv)
+    if err != nil {
+      return err
+    }
+	}
+
   return nil
 }

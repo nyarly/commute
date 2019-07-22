@@ -27,12 +27,12 @@ func addFn(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	remotes, err := getRemotes(root)
+  remotes, err := getRemotes(root)
 	if err != nil {
 		return err
 	}
 
-	rem, found := chooseRemote(cfg, remotes)
+  rem, found := chooseRemote(cfg, remotes)
 
 	if !found {
 		cfg.Remotes = append(cfg.Remotes, rem)

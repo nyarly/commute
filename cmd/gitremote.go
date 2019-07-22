@@ -19,6 +19,24 @@ func getRepoRoot() (string, error) {
 	return lookup(wd, `.git`)
 }
 
+func getRepoRemotes() ([]gitRemote, error) {
+	root, err := getRepoRoot()
+	if err != nil {
+		return nil, err
+	}
+
+	return getRemotes(root)
+}
+
+func chooseRepoRemote(cfg *config) (remote, bool) {
+	remotes, err := getRepoRemotes()
+	if err != nil {
+		return "", false
+	}
+
+	return chooseRemote(cfg, remotes)
+}
+
 func chooseRemote(cfg *config, remotes []gitRemote) (remote, bool) {
 	var best gitRemote
 

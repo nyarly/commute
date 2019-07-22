@@ -15,13 +15,11 @@ import (
 type (
 	config struct {
 		Remotes remotes
-    GitConfig map[remote]map[string]gitvalue
+    GitConfigs map[remote]gitconfig
 	}
 
-  gitvalue struct {
-    Type string
-    Value string
-  }
+  gitconfig map[string]gitvalue
+  gitvalue []string
 
 	envelope struct {
 		OauthToken string

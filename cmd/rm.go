@@ -23,12 +23,8 @@ func rmFn(cmd *cobra.Command, args []string) error {
 	var remotes []gitRemote
 	var found bool
 	if len(args) == 0 {
-		root, err := getRepoRoot()
-		if err != nil {
-			return err
-		}
-
-		remotes, err = getRemotes(root)
+    var err error
+    remotes, err = getRepoRemotes()
 		if err != nil {
 			return err
 		}

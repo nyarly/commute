@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +19,26 @@ var cDiffCmd = &cobra.Command{
 	RunE: cdiffFn,
 }
 
-
 func cdiffFn(cmd *cobra.Command, args []string) error {
-  return nil
+	tracked, err := repoConfigs()
+	if err != nil {
+		return err
+	}
+
+	for name, tv := range tracked {
+		// find value in config
+		gv, err := workspaceValues(name)
+		if err != nil {
+			return err
+		}
+
+		if !valuesEqual(gv, tv) {
+			fmt.Printf("%s:\n  Workspace: %s\n  Tracked:%s\n", name, strings.Join(gv, ", "), strings.Join(tv, ", "))
+		} else {
+      verbose("%s: same\n")
+    }
+	}
+
+  verbose("%d entries", len(tracked))
+	return nil
 }
