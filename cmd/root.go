@@ -38,9 +38,6 @@ var (
 	actually = func(f func() error) error { return f() }
 )
 
-const dontLoadConfig = "dontloadconfig"
-const dontWriteConfig = "dontwriteconfig"
-
 func needsConfig(cmd *cobra.Command) bool {
   if (cmd.Use[0:4] == "help") {
     return false

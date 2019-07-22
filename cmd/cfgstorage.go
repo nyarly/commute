@@ -39,6 +39,9 @@ var (
 	clientOnce  = &sync.Once{}
 )
 
+const dontLoadConfig = "dontloadconfig"
+const dontWriteConfig = "dontwriteconfig"
+
 func queryCommand(cmd *cobra.Command) {
 	if cmd.Annotations == nil {
 		cmd.Annotations = map[string]string{}

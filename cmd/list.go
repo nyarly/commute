@@ -10,6 +10,7 @@ import (
 func init() {
   listCmd.Flags().BoolP("include-remotes", "r", false, "list remotes as well as directories")
 	rootCmd.AddCommand(listCmd)
+  queryCommand(listCmd)
 }
 
 var listCmd = &cobra.Command{

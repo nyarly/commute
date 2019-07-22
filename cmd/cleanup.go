@@ -21,6 +21,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(cleanupCmd)
+  queryCommand(cleanupCmd)
 }
 
 func cleanupFn(cmd *cobra.Command, args []string) error {

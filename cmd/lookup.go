@@ -17,6 +17,7 @@ var lookupCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(lookupCmd)
+  configOblivious(lookupCmd)
 }
 
 func lookupFn(cmd *cobra.Command, args []string) error {
