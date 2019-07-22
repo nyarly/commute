@@ -6,6 +6,7 @@ import (
 
 func init() {
 	configCmd.AddCommand(cInflictCmd)
+  queryCommand(cInflictCmd)
 }
 
 var cInflictCmd = &cobra.Command{

@@ -9,6 +9,7 @@ import (
 
 func init() {
 	configCmd.AddCommand(cDiffCmd)
+  queryCommand(cDiffCmd)
 }
 
 var cDiffCmd = &cobra.Command{

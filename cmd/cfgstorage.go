@@ -9,17 +9,18 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/samsalisbury/yaml"
+	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
 
 type (
 	config struct {
-		Remotes remotes
-    GitConfigs map[remote]gitconfig
+		Remotes    remotes
+		GitConfigs map[remote]gitconfig
 	}
 
-  gitconfig map[string]gitvalue
-  gitvalue []string
+	gitconfig map[string]gitvalue
+	gitvalue  []string
 
 	envelope struct {
 		OauthToken string
@@ -37,6 +38,21 @@ var (
 	gh          *github.Client
 	clientOnce  = &sync.Once{}
 )
+
+func queryCommand(cmd *cobra.Command) {
+	if cmd.Annotations == nil {
+		cmd.Annotations = map[string]string{}
+	}
+	cmd.Annotations[dontWriteConfig] = "query command: doesn't update config"
+}
+
+func configOblivious(cmd *cobra.Command) {
+	if cmd.Annotations == nil {
+		cmd.Annotations = map[string]string{}
+	}
+	cmd.Annotations[dontWriteConfig] = "non-config command: doesn't update config"
+	cmd.Annotations[dontLoadConfig] = "non-config command: doesn't read config"
+}
 
 func getClient(token string) *github.Client {
 	if token == "" {

@@ -38,6 +38,29 @@ var (
 	actually = func(f func() error) error { return f() }
 )
 
+const dontLoadConfig = "dontloadconfig"
+const dontWriteConfig = "dontwriteconfig"
+
+func needsConfig(cmd *cobra.Command) bool {
+  if (cmd.Use[0:4] == "help") {
+    return false
+  }
+  if _, stop := cmd.Annotations[dontLoadConfig]; stop{
+    return false
+  }
+  return true
+}
+
+func changesConfig(cmd *cobra.Command) bool {
+  if (cmd.Use[0:4] == "help") {
+    return false
+  }
+  if _, stop := cmd.Annotations[dontWriteConfig]; stop{
+    return false
+  }
+  return true
+}
+
 func setupStuff(cmd *cobra.Command, args []string) error {
 	err := setupBasics(cmd)
 	if err != nil {
@@ -48,6 +71,10 @@ func setupStuff(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+  if !needsConfig(cmd) {
+    return nil
+  }
 
 	return loadConfig()
 }
@@ -103,5 +130,9 @@ func setupPaths() error {
 }
 
 func saveConfig(cmd *cobra.Command, args []string) error {
+  if !changesConfig(cmd) {
+    return nil
+  }
+
 	return cfgEnvelope.save()
 }
