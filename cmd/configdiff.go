@@ -7,8 +7,8 @@ import (
 )
 
 func init() {
-  configCmd.Flags().StringP("remote", "r", "", "check diff for a tracked remote")
-  configCmd.Flags().StringP("dir", "d", "", "check diff for a tracked workspace directory")
+  cDiffCmd.Flags().StringP("remote", "r", "", "check diff for a tracked remote")
+  cDiffCmd.Flags().StringP("workspace", "w", "", "check diff for a tracked workspace directory")
 	configCmd.AddCommand(cDiffCmd)
 	queryCommand(cDiffCmd)
 }
@@ -28,7 +28,7 @@ func cdiffFn(cmd *cobra.Command, args []string) error {
 
   if rem, _ := cmd.Flags().GetString("remote"); rem == "" {
     tracked, err = repoConfigs()
-    if ws, _ := cmd.Flags().GetString("dir"); ws != "" {
+    if ws, _ := cmd.Flags().GetString("workspace"); ws != "" {
       workspace = ws
     }
   } else {
