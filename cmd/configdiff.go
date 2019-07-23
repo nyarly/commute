@@ -26,9 +26,15 @@ func cdiffFn(cmd *cobra.Command, args []string) error {
   var err error
   workspace := "."
 
-  if rem, _ := cmd.Flags().GetString("remote"); rem == "" {
-    tracked, err = repoConfigs()
-    if ws, _ := cmd.Flags().GetString("workspace"); ws != "" {
+  ws, _ := cmd.Flags().GetString("workspace")
+  remstr, _ := cmd.Flags().GetString("remote")
+  rem := remote(remstr)
+
+  if rem == "" {
+    if ws == "" {
+      tracked, err = repoConfigs()
+    } else {
+
       workspace = ws
     }
   } else {
