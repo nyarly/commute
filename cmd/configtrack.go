@@ -22,7 +22,7 @@ var cTrackCmd = &cobra.Command{
 func trackFn(cmd *cobra.Command, args []string) error {
 	// find value in config
   cfgName := args[0]
-	values, err := workspaceValues(cfgName)
+	values, err := workspaceValues(".", cfgName)
   if err != nil {
     return err
   }

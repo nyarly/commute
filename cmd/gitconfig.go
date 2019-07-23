@@ -6,8 +6,9 @@ import (
 	"strings"
 )
 
-func workspaceValues(cfgName string) (gitvalue, error) {
+func workspaceValues(workspace string, cfgName string) (gitvalue, error) {
 	gitconfigcmd := exec.Command("git", "config", "--local", "--get-all", cfgName)
+  gitconfigcmd.Dir = workspace
 	value, err := gitconfigcmd.Output()
 	if err != nil {
 		return gitvalue{}, err
@@ -39,6 +40,10 @@ func repoConfigs() (gitconfig, error) {
 		return nil, fmt.Errorf("couldn't find remote name (maybe needs commute add?)")
 	}
 
+  return trackedConfigs(reponame)
+}
+
+func trackedConfigs(reponame remote) (gitconfig, error){
 	tracked, has := cfg.GitConfigs[reponame]
 	if !has {
 		tracked := gitconfig{}

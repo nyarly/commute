@@ -26,7 +26,7 @@ func cCaptureFn(cmd *cobra.Command, args []string) error {
 
 	for name := range tracked {
 		// find value in config
-		gv, err := workspaceValues(name)
+		gv, err := workspaceValues(".", name)
 		if err != nil {
 			return err
 		}
