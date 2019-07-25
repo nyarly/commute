@@ -21,10 +21,39 @@ var (
 
 func init() {
 	rootCmd.AddCommand(cleanupCmd)
-  queryCommand(cleanupCmd)
 }
 
 func cleanupFn(cmd *cobra.Command, args []string) error {
+  if err := fixupRemotes(); err != nil {
+    return err
+  }
+  return fixupLinks()
+}
+
+func fixupRemotes() error {
+  verbose("%v", cfg.Remotes)
+  for n, rem := range cfg.Remotes {
+    path, err := rem.localPath()
+    if err != nil {
+      continue
+    }
+
+    remotes, err := getRemotes(path)
+    if err != nil {
+      return err
+    }
+
+    picked, same := chooseRemote(cfg, remotes)
+    verbose("known: %q found: %q, matches: %t", rem, picked, same)
+    if !same {
+      cfg.Remotes[n] = picked
+    }
+  }
+  verbose("%v", cfg.Remotes)
+  return nil
+}
+
+func fixupLinks() error {
 	return filepath.Walk(configDir, func(path string, info os.FileInfo, err error) error {
 		if info.Mode()&os.ModeSymlink == 0 {
 			return nil

@@ -20,8 +20,7 @@ Usage:
 )
 
 var (
-	remoteNameRE = regexp.MustCompile(`([^/:]+/[^/.]+)(?:\.git)?$`)
-	fieldsRE     = regexp.MustCompile(`\s+`)
+	fieldsRE = regexp.MustCompile(`\s+`)
 )
 
 func lookup(start, tgt string) (string, error) {

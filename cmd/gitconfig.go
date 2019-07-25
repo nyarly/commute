@@ -37,7 +37,7 @@ func repoConfigs() (gitconfig, error) {
 	// get values from commute config
 	reponame, has := chooseRepoRemote(cfg)
 	if !has {
-		return nil, fmt.Errorf("couldn't find remote name (have you `commute config track <name>`?)")
+		return nil, fmt.Errorf("couldn't find remote name (have you `commute add`?) (you may need to sometimes `commute cleanup`")
 	}
 
   return trackedConfigs(reponame)

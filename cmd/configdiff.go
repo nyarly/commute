@@ -7,8 +7,6 @@ import (
 )
 
 func init() {
-  cDiffCmd.Flags().StringP("remote", "r", "", "check diff for a tracked remote")
-  cDiffCmd.Flags().StringP("workspace", "w", "", "check diff for a tracked workspace directory")
 	configCmd.AddCommand(cDiffCmd)
 	queryCommand(cDiffCmd)
 }
@@ -22,31 +20,9 @@ var cDiffCmd = &cobra.Command{
 }
 
 func cdiffFn(cmd *cobra.Command, args []string) error {
-  var tracked gitconfig
-  var err error
   workspace := "."
 
-  ws, _ := cmd.Flags().GetString("workspace")
-  remstr, _ := cmd.Flags().GetString("remote")
-  rem := remote(remstr)
-
-  if rem == "" {
-    if ws == "" {
-      tracked, err = repoConfigs()
-    } else {
-
-      workspace = ws
-    }
-  } else {
-    tracked, err = trackedConfigs(remote(rem))
-
-    r := remote(rem)
-    path, err := r.localPath()
-    if err != nil {
-      return err
-    }
-    workspace = path
-  }
+  tracked, err := repoConfigs()
 	if err != nil {
 		return err
 	}

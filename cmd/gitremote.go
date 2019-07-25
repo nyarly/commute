@@ -31,6 +31,7 @@ func getRepoRemotes() ([]gitRemote, error) {
 func chooseRepoRemote(cfg *config) (remote, bool) {
 	remotes, err := getRepoRemotes()
 	if err != nil {
+    verbose("chooseRepoRemote: %v", err)
 		return "", false
 	}
 

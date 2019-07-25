@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 type (
@@ -11,6 +12,8 @@ type (
 
 	remotes []remote
 )
+
+var remoteNameRE = regexp.MustCompile(`([^/:]+/[^/.]+)(?:\.git)?$`)
 
 func (r *remote) name() (string, error) {
 	m := remoteNameRE.FindStringSubmatch(string(*r))
