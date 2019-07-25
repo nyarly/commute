@@ -33,11 +33,11 @@ func trackFn(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("couldn't find remote name (maybe needs commute add?)")
 	}
 
-	tracked, has := cfg.GitConfigs[reponame]
-	if !has {
-		tracked := gitconfig{}
-		cfg.GitConfigs[reponame] = tracked
-	}
+  tracked, err := trackedConfigs(reponame)
+  if err != nil {
+    return err
+  }
+
 	if _, exists := tracked[cfgName]; exists {
 		return fmt.Errorf("%q is already tracked for %q", cfgName, reponame)
 	}

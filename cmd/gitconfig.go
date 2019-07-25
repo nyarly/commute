@@ -13,7 +13,7 @@ func workspaceValues(workspace string, cfgName string) (gitvalue, error) {
 	if err != nil {
 		return gitvalue{}, err
 	}
-	return strings.Split(string(value), "\n"), nil
+	return strings.Split(strings.TrimSpace(string(value)), "\n"), nil
 }
 
 func setValues(cfgName string, values []string) error {
@@ -37,7 +37,7 @@ func repoConfigs() (gitconfig, error) {
 	// get values from commute config
 	reponame, has := chooseRepoRemote(cfg)
 	if !has {
-		return nil, fmt.Errorf("couldn't find remote name (have you `commute add`?) (you may need to sometimes `commute cleanup`")
+		return nil, fmt.Errorf("couldn't find remote name %q (have you `commute add`?) (you may need to sometimes `commute cleanup`)", reponame)
 	}
 
   return trackedConfigs(reponame)
@@ -46,7 +46,7 @@ func repoConfigs() (gitconfig, error) {
 func trackedConfigs(reponame remote) (gitconfig, error){
 	tracked, has := cfg.GitConfigs[reponame]
 	if !has {
-		tracked := gitconfig{}
+		tracked = gitconfig{}
 		cfg.GitConfigs[reponame] = tracked
 	}
 	return tracked, nil

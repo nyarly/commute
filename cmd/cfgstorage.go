@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/google/go-github/github"
 	"github.com/samsalisbury/yaml"
@@ -73,7 +74,12 @@ func getClient(token string) *github.Client {
 	return gh
 }
 
-func loadConfig() error {
+func loadConfig(oldness time.Duration) error {
+	stat, err := os.Stat(configFile)
+	if err != nil {
+		return err
+	}
+
 	f, err := os.Open(configFile)
 	if err != nil {
 		return err
@@ -90,7 +96,10 @@ func loadConfig() error {
 		return err
 	}
 
-	env.fetchConfigGist()
+  age := time.Now().Sub(stat.ModTime())
+  if age >= oldness {
+    env.fetchConfigGist()
+  }
 
 	cfg = &env.Config
 	cfgEnvelope = env

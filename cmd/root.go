@@ -21,6 +21,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("quiet", "q", false, "print nothing about what commute is doing")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "print out a bunch of junk about what commute is doing")
 	rootCmd.PersistentFlags().BoolP("dryrun", "d", false, "take no action")
+	rootCmd.PersistentFlags().DurationP("config-ttl", "T", 0, "allow configuration to be stale rather than fetch it")
 }
 
 var (
@@ -73,7 +74,12 @@ func setupStuff(cmd *cobra.Command, args []string) error {
     return nil
   }
 
-	return loadConfig()
+  age, err := cmd.Flags().GetDuration("config-ttl")
+  if err != nil {
+    return err
+  }
+
+	return loadConfig(age)
 }
 
 func setupBasics(cmd *cobra.Command) error {

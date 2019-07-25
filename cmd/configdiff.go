@@ -35,9 +35,9 @@ func cdiffFn(cmd *cobra.Command, args []string) error {
 		}
 
 		if !valuesEqual(gv, tv) {
-			normal("%s:\n  Workspace: %s\n  Tracked:%s\n", name, strings.Join(gv, ", "), strings.Join(tv, ", "))
+			normal("%s:\n  Workspace: %q\n  Tracked: %q\n", name, strings.Join(gv, ", "), strings.Join(tv, ", "))
 		} else {
-			verbose("%s: same\n")
+      verbose("%s: same - both: %q\n", name, strings.Join(gv, ", "))
 		}
 	}
 
