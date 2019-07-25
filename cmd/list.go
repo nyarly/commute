@@ -30,17 +30,17 @@ func listFn(cmd *cobra.Command, args []string) error {
 
 		_, err = os.Stat(lp)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s -> MISSING\n", remote)
+			normal("%s -> MISSING\n", remote)
 			continue
 		}
 		p, err := remote.localPath()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s : %s\n", remote, err)
+			normal("%s : %s\n", remote, err)
 		}
     if include, err := cmd.Flags().GetBool("include-remotes"); err == nil && include {
-      normal("%s -> %s\n", remote, p)
+      fmt.Printf("%s -> %s\n", remote, p)
     } else {
-      normal("%s\n", p)
+      fmt.Printf("%s\n", p)
     }
 	}
 	return nil
