@@ -40,7 +40,7 @@ var (
 )
 
 func needsConfig(cmd *cobra.Command) bool {
-  if (cmd.Use[0:4] == "help") {
+  if len(cmd.Use) >= 4 && cmd.Use[0:4] == "help" {
     return false
   }
   if _, stop := cmd.Annotations[dontLoadConfig]; stop{
@@ -50,7 +50,7 @@ func needsConfig(cmd *cobra.Command) bool {
 }
 
 func changesConfig(cmd *cobra.Command) bool {
-  if (cmd.Use[0:4] == "help") {
+  if len(cmd.Use) >= 4 && cmd.Use[0:4] == "help" {
     return false
   }
   if _, stop := cmd.Annotations[dontWriteConfig]; stop{

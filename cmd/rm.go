@@ -45,6 +45,8 @@ func rmFn(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+  delete(cfg.GitConfigs, rem)
+
 	lp, err := rem.linkPath()
 	if err != nil {
 		return err

@@ -10,6 +10,7 @@ import (
 
 func init() {
 	rootCmd.AddCommand(addCmd)
+  addCmd.Flags().StringP("remote", "r", "", "specify a remote to add, rather than guess")
 }
 
 var addCmd = &cobra.Command{
@@ -33,6 +34,17 @@ func addFn(cmd *cobra.Command, args []string) error {
 	}
 
   rem, found := chooseRemote(cfg, remotes)
+
+  chosenRemote, err :=  cmd.Flags().GetString("remote")
+  if err != nil {
+    return err
+  }
+
+  for _, r := range remotes {
+    if chosenRemote == r.name {
+      rem = remote(r.url)
+    }
+  }
 
 	if !found {
 		cfg.Remotes = append(cfg.Remotes, rem)
