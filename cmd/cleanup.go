@@ -46,6 +46,7 @@ func fixupRemotes() error {
     picked, same := chooseRemote(cfg, remotes)
     verbose("known: %q found: %q, matches: %t", rem, picked, same)
     if !same {
+      verbose("replacing known: %q with found: %q", rem, picked, same)
       cfg.Remotes[n] = picked
     }
   }
