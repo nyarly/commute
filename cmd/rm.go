@@ -52,8 +52,9 @@ func rmFn(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if _, err := os.Stat(lp); err != nil {
-		fmt.Printf("remote not yet accounted for")
+	if err := os.Remove(lp); err != nil {
+    fmt.Printf("Note: remote not yet accounted for.\n")
 	}
-	return os.Remove(lp)
+
+  return nil
 }
