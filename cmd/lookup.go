@@ -1,6 +1,8 @@
 package cmd
 
 import (
+  "fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +27,6 @@ func lookupFn(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	normal(path)
+	fmt.Println(path)
 	return nil
 }
