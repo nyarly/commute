@@ -42,11 +42,11 @@ func addFn(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-    gr, err := pickNamedRemote(chosenRemote, remotes)
-    if err != nil {
-      return err
-    }
-    rem, found = chooseRemote(cfg, []gitRemote{gr})
+		gr, err := pickNamedRemote(chosenRemote, remotes)
+		if err != nil {
+			return err
+		}
+		rem, found = chooseRemote(cfg, []gitRemote{gr})
 
 	} else {
 		rem, found = chooseRemote(cfg, remotes)
@@ -72,16 +72,16 @@ func addFn(cmd *cobra.Command, args []string) error {
 }
 
 func pickNamedRemote(chosenRemote string, remotes []gitRemote) (gitRemote, error) {
-  for _, r := range remotes {
-    if chosenRemote == r.name {
-      return r, nil
-    }
-  }
+	for _, r := range remotes {
+		if chosenRemote == r.name {
+			return r, nil
+		}
+	}
 
-  remnames := []string{}
-  for _, r := range remotes {
-    remnames = append(remnames, r.name)
-  }
+	remnames := []string{}
+	for _, r := range remotes {
+		remnames = append(remnames, r.name)
+	}
 
-  return gitRemote{}, fmt.Errorf("no remote named %q in local repo - found: %s", chosenRemote, strings.Join(remnames, ", "))
+	return gitRemote{}, fmt.Errorf("no remote named %q in local repo - found: %s", chosenRemote, strings.Join(remnames, ", "))
 }
